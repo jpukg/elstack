@@ -54,14 +54,6 @@ RUN apk add --no-cache -t .build-deps wget ca-certificates \
 	&& chown -R elstack:elstack /usr/share/elasticsearch \
 	&& chown -R elstack:elstack /usr/share/logstash \
 	&& chown -R elstack:elstack /usr/share/kibana \
-    && echo "Download X-Pack..." \
-    && wget --progress=bar:force -O /tmp/x-pack-$STACK.zip https://artifacts.elastic.co/downloads/packs/x-pack/x-pack-$STACK.zip \
-    && echo "Installing X-Pack for Elasticsearch..." \
-    && /usr/share/elasticsearch/bin/elasticsearch-plugin install file:///tmp/x-pack-$STACK.zip \
-    && echo "Installing X-Pack for Logstash..." \
-    && /usr/share/logstash/bin/logstash-plugin install file:///tmp/x-pack-$STACK.zip \
-    && echo "Installing X-Pack for Kibana..." \
-    && /usr/share/kibana/bin/kibana-plugin install file:///tmp/x-pack-$STACK.zip \
 	&& echo "Clean Up..." \
 	&& rm -rf /tmp/* \
 	&& apk del --purge .build-deps
