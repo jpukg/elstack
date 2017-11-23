@@ -49,16 +49,21 @@ RUN apk add --no-cache -t .build-deps wget ca-certificates \
 	&& sed -i "s|$bundled|$apline_node|g" /usr/share/kibana/bin/kibana-plugin \
 	&& sed -i "s|$bundled|$apline_node|g" /usr/share/kibana/bin/kibana \
 	&& rm -rf /usr/share/kibana/node \
-	&& echo "Create elstack user..." \
-	&& adduser -DH -s /sbin/nologin elstack \
     && echo "Download X-Pack..." \
     && wget --progress=bar:force -O /tmp/x-pack-$STACK.zip https://artifacts.elastic.co/downloads/packs/x-pack/x-pack-$STACK.zip \
     && echo "Installing X-Pack for Elasticsearch..." \
     && /usr/share/elasticsearch/bin/elasticsearch-plugin install file:///tmp/x-pack-$STACK.zip \
+	&& echo "Remove Machine Learning from X-Pack for Elasticsearch..." \
+	&& rm -rf /usr/share/elasticsearch/plugins/x-pack/platform/linux-x86_64 \
     && echo "Installing X-Pack for Logstash..." \
     && /usr/share/logstash/bin/logstash-plugin install file:///tmp/x-pack-$STACK.zip \
     && echo "Installing X-Pack for Kibana..." \
     && /usr/share/kibana/bin/kibana-plugin install file:///tmp/x-pack-$STACK.zip \
+	&& echo "Create elstack user..." \
+	&& adduser -DH -s /sbin/nologin elstack \
+	&& chown -R elstack:elstack /usr/share/elasticsearch \
+	&& chown -R elstack:elstack /usr/share/logstash \
+	&& chown -R elstack:elstack /usr/share/kibana
 	&& echo "Clean Up..." \
 	&& rm -rf /tmp/* \
 	&& apk del --purge .build-deps
@@ -81,11 +86,6 @@ COPY supervisord.conf /etc/supervisor/
 COPY elasticsearch-entrypoint.sh /
 COPY logstash-entrypoint.sh /
 COPY kibana-entrypoint.sh /
-
-# modify ownership
-RUN chown -R elstack:elstack /usr/share/elasticsearch \
-	&& chown -R elstack:elstack /usr/share/logstash \
-	&& chown -R elstack:elstack /usr/share/kibana
 
 VOLUME ["/usr/share/elasticsearch/data"]
 VOLUME ["/etc/logstash/conf.d"]
