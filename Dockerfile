@@ -51,9 +51,6 @@ RUN apk add --no-cache -t .build-deps wget ca-certificates \
 	&& rm -rf /usr/share/kibana/node \
 	&& echo "Create elstack user..." \
 	&& adduser -DH -s /sbin/nologin elstack \
-	&& chown -R elstack:elstack /usr/share/elasticsearch \
-	&& chown -R elstack:elstack /usr/share/logstash \
-	&& chown -R elstack:elstack /usr/share/kibana \
     && echo "Download X-Pack..." \
     && wget --progress=bar:force -O /tmp/x-pack-$STACK.zip https://artifacts.elastic.co/downloads/packs/x-pack/x-pack-$STACK.zip \
     && echo "Installing X-Pack for Elasticsearch..." \
@@ -84,6 +81,11 @@ COPY supervisord.conf /etc/supervisor/
 COPY elasticsearch-entrypoint.sh /
 COPY logstash-entrypoint.sh /
 COPY kibana-entrypoint.sh /
+
+# modify ownership
+RUN chown -R elstack:elstack /usr/share/elasticsearch \
+	&& chown -R elstack:elstack /usr/share/logstash \
+	&& chown -R elstack:elstack /usr/share/kibana
 
 VOLUME ["/usr/share/elasticsearch/data"]
 VOLUME ["/etc/logstash/conf.d"]
