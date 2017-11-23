@@ -51,6 +51,9 @@ RUN apk add --no-cache -t .build-deps wget ca-certificates \
 	&& rm -rf /usr/share/kibana/node \
 	&& echo "Create elstack user..." \
 	&& adduser -DH -s /sbin/nologin elstack \
+	&& chown -R elstack:elstack /usr/share/elasticsearch \
+	&& chown -R elstack:elstack /usr/share/logstash \
+	&& chown -R elstack:elstack /usr/share/kibana \
 	&& echo "Clean Up..." \
 	&& rm -rf /tmp/* \
 	&& apk del --purge .build-deps
@@ -73,11 +76,6 @@ COPY supervisord.conf /etc/supervisor/
 COPY elasticsearch-entrypoint.sh /
 COPY logstash-entrypoint.sh /
 COPY kibana-entrypoint.sh /
-
-# modify ownership
-RUN chown -R elstack:elstack /usr/share/elasticsearch \
-	&& chown -R elstack:elstack /usr/share/logstash \
-	&& chown -R elstack:elstack /usr/share/kibana
 
 VOLUME ["/usr/share/elasticsearch/data"]
 VOLUME ["/etc/logstash/conf.d"]
