@@ -63,7 +63,7 @@ RUN apk add --no-cache -t .build-deps wget ca-certificates \
 	&& adduser -DH -s /sbin/nologin elstack \
 	&& chown -R elstack:elstack /usr/share/elasticsearch \
 	&& chown -R elstack:elstack /usr/share/logstash \
-	&& chown -R elstack:elstack /usr/share/kibana
+	&& chown -R elstack:elstack /usr/share/kibana \
 	&& echo "Clean Up..." \
 	&& rm -rf /tmp/* \
 	&& apk del --purge .build-deps
