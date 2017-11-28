@@ -1,11 +1,11 @@
 FROM alpine:3.6
-MAINTAINER Sean Cheung <theoxuanx@gmail.com>
+LABEL MAINTAINER Sean Cheung <theoxuanx@gmail.com>
 
 RUN apk add --no-cache openjdk8-jre tini su-exec
 
 ENV STACK 6.0.0
 
-RUN apk add --no-cache libzmq bash nodejs supervisor openssl
+RUN apk add --no-cache libzmq bash nodejs supervisor nginx apache2-utils
 RUN mkdir -p /usr/local/lib \
 	&& ln -s /usr/lib/*/libzmq.so.3 /usr/local/lib/libzmq.so
 RUN apk add --no-cache -t .build-deps wget ca-certificates \
@@ -71,15 +71,17 @@ COPY elasticsearch.yml /usr/share/elasticsearch/config/
 COPY logstash.yml /etc/logstash/
 COPY logstash.conf /etc/logstash/conf.d/
 COPY supervisord.conf /etc/supervisor/
+COPY nginx.conf /etc/nginx/nginx.conf
 
 # Add entrypoints
 COPY elasticsearch-entrypoint.sh /
 COPY logstash-entrypoint.sh /
 COPY kibana-entrypoint.sh /
+COPY nginx-entrypoint.sh /
 
 VOLUME ["/usr/share/elasticsearch/data"]
 VOLUME ["/etc/logstash/conf.d"]
 
-EXPOSE 5601 9200 9300
+EXPOSE 80 5601 9200 9300
 
 CMD ["/sbin/tini","--","/usr/bin/supervisord","-c", "/etc/supervisor/supervisord.conf"]
